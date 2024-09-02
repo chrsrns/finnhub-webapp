@@ -14,7 +14,18 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="flex place-items-center min-h-40 w-full bg-green-400"></div>
+      <div className="flex justify-center flex-wrap gap-4 place-items-center w-full">
+        <input
+          placeholder="Enter stock symbol or name"
+          className="flex justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200  backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit min-w-fit rounded-xl border bg-gray-200 p-4"
+        ></input>
+        <button
+          className="bg-white min-w-fit hover:bg-neutral-300 text-black font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          type="button"
+        >
+          Search
+        </button>
+      </div>
 
       <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left">
         <a
