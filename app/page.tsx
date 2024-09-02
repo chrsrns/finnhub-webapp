@@ -26,6 +26,22 @@ export default function Home() {
           Search
         </button>
       </div>
+
+      <div className="relative flex w-full flex-grow flex-col gap-2 overflow-scroll px-4 before:fixed before:bottom-0 before:h-1/4 before:w-full before:bg-gradient-to-t before:from-white before:via-white before:dark:from-black before:dark:via-black">
+        {(() => {
+          let objects = Array.from({ length: 14 });
+          return objects.map((object, i) => (
+            <div
+              key={i}
+              className="flex w-full items-center justify-center rounded border border-neutral-400 bg-neutral-800/40 p-2"
+            >
+              <span>Time</span>
+              <span className="mx-2">|</span>
+              <span>Price</span>
+            </div>
+          ));
+        })()}
+      </div>
     </main>
   );
 }
