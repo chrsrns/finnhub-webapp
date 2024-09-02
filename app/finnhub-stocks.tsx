@@ -3,6 +3,19 @@
 import { ChangeEvent, FocusEvent, useState } from "react";
 import { Show } from "./utils";
 
+//#region These are the data struct returned by Finnhub API at their search endpoint
+interface SymbolLookupItem {
+  description: string;
+  displaySymbol: string;
+  symbol: string;
+  type: string;
+}
+interface SymbolLookup {
+  count: number;
+  result: SymbolLookupItem[];
+}
+//#endregion
+
 export default function FinnhubStocks() {
   const [searchText, setSearchText] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
