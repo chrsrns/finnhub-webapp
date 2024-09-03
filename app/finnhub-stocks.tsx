@@ -126,7 +126,7 @@ export default function FinnhubStocks() {
 
                 let results = symbolLookupData.result.slice(0, 4);
                 return results.map((symbol) => (
-                  <>
+                  <div key={symbol.description}>
                     <button className="">
                       <span className="me-3 font-bold">
                         {symbol.displaySymbol}
@@ -134,7 +134,7 @@ export default function FinnhubStocks() {
                       {symbol.description}
                     </button>
                     <hr className="py-1" />
-                  </>
+                  </div>
                 ));
               })()}
             </div>
