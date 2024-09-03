@@ -51,7 +51,8 @@ export default function FinnhubStocks() {
   const API_CALL_WAIT_TIME = 300;
   const socket = useRef<WebSocket>();
   const symbolLookupFetch = useCallback((query: string) => {
-    fetch(
+    lastLookupCall.current = Date.now();
+    let fetchResult = fetch(
       `https://finnhub.io/api/v1/search?q=${query}&exchange=US&token=${process.env.NEXT_PUBLIC_FINNHUB_KEY}`,
     )
       .then((res) => {
@@ -68,7 +69,7 @@ export default function FinnhubStocks() {
       .catch((_) => {
         console.log("API Error");
       });
-    lastLookupCall.current = Date.now();
+    return fetchResult;
   }, []);
   const symbolLookupThrottled = useCallback(
     (query: string) => {
@@ -231,6 +232,20 @@ export default function FinnhubStocks() {
         <button
           className="focus:shadow-outline min-w-fit rounded bg-white px-4 py-2 font-bold text-black hover:bg-neutral-300 focus:outline-none"
           type="button"
+          onClick={() => {
+            console.log("Search button clicked");
+            symbolLookupFetch(searchText).then((data) => {
+              if (data) {
+                const dataFiltered = data.result.filter(
+                  (a) => a.displaySymbol == searchText.toUpperCase(),
+                );
+                console.log(dataFiltered);
+                if (dataFiltered.length === 1) {
+                  setSelectedStockSymbol(dataFiltered[0]);
+                }
+              }
+            });
+          }}
         >
           Search
         </button>
