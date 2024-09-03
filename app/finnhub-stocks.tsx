@@ -113,6 +113,13 @@ export default function FinnhubStocks() {
   }, [searchText, symbolLookupThrottled]);
 
   useEffect(() => {
+    if (selectedStockSymbolRef.current)
+      socket.current?.send(
+        JSON.stringify({
+          type: "unsubscribe",
+          symbol: selectedStockSymbolRef.current.displaySymbol,
+        }),
+      );
     if (selectedStockSymbol) {
       if (selectedStockSymbol.displaySymbol) {
         socket.current?.send(
@@ -122,8 +129,10 @@ export default function FinnhubStocks() {
           }),
         );
       }
+      selectedStockSymbolRef.current = selectedStockSymbol;
     }
   }, [selectedStockSymbol]);
+  const selectedStockSymbolRef = useRef<StockSymbolItem>();
 
   //#region NOTE: For unreactive reference to that state
   const stockPricesRef = useRef<StockPriceResponse[]>();
