@@ -40,24 +40,16 @@ export default function FinnhubStocks() {
   const lastLookupCall = useRef(Date.now());
   const lastLookupQuery = useRef("");
   const API_CALL_WAIT_TIME = 300;
-  const symbolLookupFetch = useCallback(
-    (query: string) => {
-      fetch(
-        `https://finnhub.io/api/v1/search?q=${query}&exchange=US&token=${process.env.NEXT_PUBLIC_FINNHUB_KEY}`,
-      )
-        .then((res) => res.json())
-        .then((data) => {
-          // NOTE: The conditional below checks if the given query is still the search text.
-          // This prevents a possible race condition where a previous fetch finishes after a more recent fetch finishes,
-          // which would cause an overwrite
-          if (query === searchText) {
-            setSymbolLookupData(data);
-          }
-        });
-      lastLookupCall.current = Date.now();
-    },
-    [searchText],
-  );
+  const symbolLookupFetch = useCallback((query: string) => {
+    fetch(
+      `https://finnhub.io/api/v1/search?q=${query}&exchange=US&token=${process.env.NEXT_PUBLIC_FINNHUB_KEY}`,
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        setSymbolLookupData(data);
+      });
+    lastLookupCall.current = Date.now();
+  }, []);
   const symbolLookupThrottled = useCallback(
     (query: string) => {
       // NOTE: only for consistent
