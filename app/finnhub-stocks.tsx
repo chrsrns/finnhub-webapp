@@ -253,7 +253,9 @@ export default function FinnhubStocks() {
       </div>
 
       <Show when={typeof selectedStockSymbol !== "undefined"}>
-        <div className="mb-5 flex gap-2 rounded bg-neutral-800 px-3 py-1.5">
+        <div
+          className={`mb-5 flex w-fit animate-fadeIn gap-2 rounded bg-neutral-800 px-3 py-1.5`}
+        >
           <span>Currently Selected:</span>
           <span className="rounded bg-yellow-300 px-1.5 text-black">
             {selectedStockSymbol?.displaySymbol}
