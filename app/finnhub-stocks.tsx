@@ -28,6 +28,10 @@ interface SymbolLookup {
 
 export default function FinnhubStocks() {
   const [searchText, setSearchText] = useState("");
+  const searchTextRef = useRef("");
+  useEffect(() => {
+    searchTextRef.current = searchText;
+  }, [searchText]);
 
   const [symbolLookupData, setSymbolLookupData] = useState<SymbolLookup>({
     count: 0,
@@ -55,8 +59,11 @@ export default function FinnhubStocks() {
         else throw new Error("");
       })
       .then((data) => {
-        setSymbolLookupData(data);
-        console.log("Added data from query: ", query);
+        if (query === searchTextRef.current) {
+          setSymbolLookupData(data);
+          const dataCasted: SymbolLookup = data;
+          return dataCasted;
+        }
       })
       .catch((_) => {
         console.log("API Error");
