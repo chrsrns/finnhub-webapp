@@ -116,6 +116,7 @@ export default function FinnhubStocks() {
   }, [searchText, symbolLookupThrottled]);
 
   useEffect(() => {
+    // NOTE: For unsubscribing the old stock symbol
     if (selectedStockSymbolRef.current)
       socket.current?.send(
         JSON.stringify({
@@ -125,6 +126,7 @@ export default function FinnhubStocks() {
       );
     if (selectedStockSymbol) {
       if (selectedStockSymbol.displaySymbol) {
+        // NOTE: Fetches the latest stock price, since the websocket does not send the latest one on subscribe.
         fetch(
           `https://finnhub.io/api/v1/quote?symbol=${selectedStockSymbol.displaySymbol}&token=${process.env.NEXT_PUBLIC_FINNHUB_KEY}`,
         )
