@@ -9,7 +9,8 @@ interface StockSymbolItem {
   symbol: string;
   type: string;
 }
-interface StockPrice extends StockSymbolItem {
+interface StockPrice {
+  symbol: string;
   price: number;
 }
 interface SymbolLookup {
@@ -126,10 +127,7 @@ export default function FinnhubStocks() {
           setStockPrices([
             ...(stockPricesRef.current || []),
             {
-              description: "",
-              displaySymbol: "",
               symbol: "",
-              type: "",
               price: price,
             },
           ]);
