@@ -1,6 +1,13 @@
 "use client";
 
-import { ChangeEvent, FocusEvent, useState } from "react";
+import {
+  ChangeEvent,
+  FocusEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { Show } from "./utils";
 
 //#region These are the data struct returned by Finnhub API at their search endpoint
@@ -24,6 +31,72 @@ export default function FinnhubStocks() {
     count: 0,
     result: [],
   });
+
+  // #region  Finnhub - related functions
+
+  // NOTE: This is for throttling the fetching of data from the Finnhub API.
+  // We want this since the free account only allows 20 API calls per second.
+  // `useRef`s are used because we don't want to react to their changes, leading to an infinite loop otherwise
+  const lastLookupCall = useRef(Date.now());
+  const lastLookupQuery = useRef("");
+  const API_CALL_WAIT_TIME = 300;
+  const symbolLookupFetch = useCallback(
+    (query: string) => {
+      fetch(
+        `https://finnhub.io/api/v1/search?q=${query}&exchange=US&token=${process.env.NEXT_PUBLIC_FINNHUB_KEY}`,
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          // NOTE: The conditional below checks if the given query is still the search text.
+          // This prevents a possible race condition where a previous fetch finishes after a more recent fetch finishes,
+          // which would cause an overwrite
+          if (query === searchText) {
+            setSymbolLookupData(data);
+          }
+        });
+      lastLookupCall.current = Date.now();
+    },
+    [searchText],
+  );
+  const symbolLookupThrottled = useCallback(
+    (query: string) => {
+      // NOTE: only for consistent
+      const now = Date.now();
+
+      // NOTE: this conditional does the following (with some info left out, for conciseness):
+      // if time between this call and previous call is far enough,
+      //    just execute the fetch;
+      // else,
+      //    store that search text, and;
+      //    if no other calls are made, calculated via another comparison,
+      //      run a fetch with the stored search text
+      //
+      if (query && now - lastLookupCall.current > API_CALL_WAIT_TIME) {
+        symbolLookupFetch(query);
+      } else {
+        lastLookupQuery.current = query;
+        setTimeout(
+          () => {
+            if (
+              query &&
+              // NOTE: This is that 'another comparison' referred above
+              Date.now() - lastLookupCall.current >= API_CALL_WAIT_TIME
+            ) {
+              lastLookupCall.current = Date.now();
+              symbolLookupFetch(lastLookupQuery.current);
+            }
+          },
+          API_CALL_WAIT_TIME - (now - lastLookupCall.current),
+        );
+      }
+    },
+    [symbolLookupFetch],
+  );
+  // #endregion
+
+  useEffect(() => {
+    symbolLookupThrottled(searchText);
+  }, [searchText, symbolLookupThrottled]);
 
   // START handlers for the search text input element
   function handleSearchTextChange(e: ChangeEvent<HTMLInputElement>) {
