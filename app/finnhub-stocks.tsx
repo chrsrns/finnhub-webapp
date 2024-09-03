@@ -241,7 +241,6 @@ export default function FinnhubStocks() {
                 <div key={symbol.description}>
                   <button
                     onClick={() => {
-                      console.log("Option clicked...", symbol);
                       setSelectedStockSymbol(symbol);
                     }}
                     className=""
@@ -261,13 +260,11 @@ export default function FinnhubStocks() {
           className="focus:shadow-outline min-w-fit rounded bg-white px-4 py-2 font-bold text-black hover:bg-neutral-300 focus:outline-none"
           type="button"
           onClick={() => {
-            console.log("Search button clicked");
             symbolLookupFetch(searchText).then((data) => {
               if (data) {
                 const dataFiltered = data.result.filter(
                   (a) => a.displaySymbol == searchText.toUpperCase(),
                 );
-                console.log(dataFiltered);
                 if (dataFiltered.length === 1) {
                   setSelectedStockSymbol(dataFiltered[0]);
                 }
@@ -304,7 +301,6 @@ export default function FinnhubStocks() {
         {(() => {
           return stockPrices.map((stockPrice, i) => {
             const stockPriceData = stockPrice.data[stockPrice.data.length - 1];
-            console.log("Length: ", stockPrices.length);
             return (
               <div
                 key={`${stockPriceData.s}-${stockPriceData.p}-${stockPriceData.t}-${stockPriceData.v}-${stockPriceData.distinctor}`}
