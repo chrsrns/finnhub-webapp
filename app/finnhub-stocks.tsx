@@ -9,9 +9,15 @@ interface StockSymbolItem {
   symbol: string;
   type: string;
 }
-interface StockPrice {
-  symbol: string;
-  price: number;
+interface StockPriceResponse {
+  type: "trade" | "ping";
+  data: StockPriceResponseData[];
+}
+interface StockPriceResponseData {
+  t: number;
+  s: string;
+  p: number;
+  v: number;
 }
 interface SymbolLookup {
   count: number;
@@ -26,7 +32,7 @@ export default function FinnhubStocks() {
     count: 0,
     result: [],
   });
-  const [stockPrices, setStockPrices] = useState<StockPrice[]>([]);
+  const [stockPrices, setStockPrices] = useState<StockPriceResponse[]>([]);
   const [selectedStockSymbol, setSelectedStockSymbol] =
     useState<StockSymbolItem>();
 
@@ -103,7 +109,7 @@ export default function FinnhubStocks() {
   }, [selectedStockSymbol]);
 
   //#region NOTE: For unreactive reference to that state
-  const stockPricesRef = useRef<StockPrice[]>();
+  const stockPricesRef = useRef<StockPriceResponse[]>();
   useEffect(() => {
     stockPricesRef.current = stockPrices;
   }, [stockPrices]);
@@ -114,24 +120,12 @@ export default function FinnhubStocks() {
         `wss://ws.finnhub.io?token=${process.env.NEXT_PUBLIC_FINNHUB_KEY}`,
       );
       socket.current.addEventListener("message", (event) => {
-        const jsonRes = JSON.parse(event.data);
+        // TODO: Make type safe
+        const jsonRes: StockPriceResponse = JSON.parse(event.data);
 
-        // NOTE: Undefined checks
-        if (!jsonRes.data) return;
-        const jsonResData = jsonRes.data;
-        // NOTE: The data sent by the API comes as an array.
-        // The last one seems to have the latest data. This parses that.
-        const price = jsonResData[jsonResData.length - 1].p || undefined;
-        const symbol = jsonResData[jsonResData.length - 1].s || undefined;
-
-        if (price && symbol)
-          setStockPrices([
-            ...(stockPricesRef.current || []),
-            {
-              symbol: symbol,
-              price: price,
-            },
-          ]);
+        if (jsonRes.type === "trade") {
+          setStockPrices([...(stockPricesRef.current || []), jsonRes]);
+        }
       });
     }
   }, []);
@@ -198,10 +192,12 @@ export default function FinnhubStocks() {
               className="flex w-full items-center justify-center rounded border border-neutral-400 bg-neutral-800/40 p-2"
             >
               <span className="me-3 rounded bg-yellow-300 px-1.5 text-black">
-                {stockPrice.symbol}
+                {stockPrice.data[stockPrice.data.length - 1].s}
               </span>
               <span>
-                {Number(stockPrice.price).toLocaleString("en", {
+                {Number(
+                  stockPrice.data[stockPrice.data.length - 1].p,
+                ).toLocaleString("en", {
                   style: "currency",
                   currency: "USD",
                 })}
