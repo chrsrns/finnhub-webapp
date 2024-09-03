@@ -40,6 +40,7 @@ export default function FinnhubStocks() {
   const lastLookupCall = useRef(Date.now());
   const lastLookupQuery = useRef("");
   const API_CALL_WAIT_TIME = 300;
+  const socket = useRef<WebSocket>();
   const symbolLookupFetch = useCallback((query: string) => {
     fetch(
       `https://finnhub.io/api/v1/search?q=${query}&exchange=US&token=${process.env.NEXT_PUBLIC_FINNHUB_KEY}`,
@@ -89,6 +90,17 @@ export default function FinnhubStocks() {
   useEffect(() => {
     symbolLookupThrottled(searchText);
   }, [searchText, symbolLookupThrottled]);
+
+  useEffect(() => {
+    if (!socket.current) {
+      socket.current = new WebSocket(
+        `wss://ws.finnhub.io?token=${process.env.NEXT_PUBLIC_FINNHUB_KEY}`,
+      );
+      socket.current.addEventListener("message", (event) => {
+        console.log("Websocket Data:", event.data);
+      });
+    }
+  }, []);
 
   // START handlers for the search text input element
   function handleSearchTextChange(e: ChangeEvent<HTMLInputElement>) {
