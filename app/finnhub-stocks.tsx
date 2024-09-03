@@ -2,6 +2,7 @@
 
 import { DateTime } from "luxon";
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
+import { Show } from "./utils";
 
 //#region These are the data struct returned by Finnhub API at their search endpoint
 interface StockSymbolItem {
@@ -251,6 +252,14 @@ export default function FinnhubStocks() {
         </button>
       </div>
 
+      <Show when={typeof selectedStockSymbol !== "undefined"}>
+        <div className="mb-5 flex gap-2 rounded bg-neutral-800 px-3 py-1.5">
+          <span>Currently Selected:</span>
+          <span className="rounded bg-yellow-300 px-1.5 text-black">
+            {selectedStockSymbol?.displaySymbol}
+          </span>
+        </div>
+      </Show>
       <div className="relative flex w-full flex-grow flex-col-reverse place-content-start gap-2 overflow-scroll px-4 before:fixed before:bottom-0 before:h-1/4 before:w-full before:bg-gradient-to-t before:from-white before:via-white before:dark:from-black before:dark:via-black">
         {(() => {
           return stockPrices.map((stockPrice, i) => (
