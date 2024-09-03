@@ -122,12 +122,13 @@ export default function FinnhubStocks() {
         // NOTE: The data sent by the API comes as an array.
         // The last one seems to have the latest data. This parses that.
         const price = jsonResData[jsonResData.length - 1].p || undefined;
+        const symbol = jsonResData[jsonResData.length - 1].s || undefined;
 
-        if (price)
+        if (price && symbol)
           setStockPrices([
             ...(stockPricesRef.current || []),
             {
-              symbol: "",
+              symbol: symbol,
               price: price,
             },
           ]);
@@ -196,13 +197,15 @@ export default function FinnhubStocks() {
               key={i}
               className="flex w-full items-center justify-center rounded border border-neutral-400 bg-neutral-800/40 p-2"
             >
-              <span>Time</span>
-              <span className="mx-2">|</span>
-              <span></span>
-              {Number(stockPrice.price).toLocaleString("en", {
-                style: "currency",
-                currency: "USD",
-              })}
+              <span className="me-3 rounded bg-yellow-300 px-1.5 text-black">
+                {stockPrice.symbol}
+              </span>
+              <span>
+                {Number(stockPrice.price).toLocaleString("en", {
+                  style: "currency",
+                  currency: "USD",
+                })}
+              </span>
             </div>
           ));
         })()}
