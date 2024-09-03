@@ -123,7 +123,29 @@ export default function FinnhubStocks() {
             className="justify-center rounded-xl border border-b border-gray-300 bg-gray-200 bg-gradient-to-b from-zinc-200 p-4 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-900 dark:from-inherit"
           ></input>
           <Show when={isSearchFocused}>
-            <div className="top-100 absolute z-10 mt-2 h-32 w-full rounded border border-neutral-400 bg-zinc-900"></div>
+            <div className="top-100 absolute z-10 mt-2 flex w-full flex-col rounded border border-neutral-400 bg-zinc-900 p-2.5">
+              {(() => {
+                if (symbolLookupData.count < 1 || !searchText)
+                  return (
+                    <div className="text-center text-neutral-400">
+                      Possible matches will show here
+                    </div>
+                  );
+
+                let results = symbolLookupData.result.slice(0, 4);
+                return results.map((symbol) => (
+                  <>
+                    <button className="">
+                      <span className="me-3 font-bold">
+                        {symbol.displaySymbol}
+                      </span>
+                      {symbol.description}
+                    </button>
+                    <hr className="py-1" />
+                  </>
+                ));
+              })()}
+            </div>
           </Show>
         </div>
         <button
