@@ -57,6 +57,7 @@ export default function FinnhubStocks() {
   const lastLookupCall = useRef(Date.now());
   const lastLookupQuery = useRef("");
   const API_CALL_WAIT_TIME = 300;
+
   const socket = useRef<WebSocket>();
   const symbolLookupFetch = useCallback((query: string) => {
     lastLookupCall.current = Date.now();
@@ -204,17 +205,16 @@ export default function FinnhubStocks() {
     }
   }, []);
 
-  // START handlers for the search text input element
+  // #region NOTE: handlers for the search text input element
   function handleSearchTextChange(e: ChangeEvent<HTMLInputElement>) {
     setSearchText(e.target.value);
   }
-  // END
+  // #//#endregion
 
-  //#region handler for the auto update checkbox
+  //#region NOTE: handler for the auto update checkbox
   function handleCheckbox(e: ChangeEvent<HTMLInputElement>) {
     setIsAutoUpdate(e.target.checked);
   }
-
   //#endregion
 
   return (
