@@ -122,6 +122,32 @@ export default function FinnhubStocks() {
       );
     if (selectedStockSymbol) {
       if (selectedStockSymbol.displaySymbol) {
+        fetch(
+          `https://finnhub.io/api/v1/quote?symbol=${selectedStockSymbol.displaySymbol}&token=${process.env.NEXT_PUBLIC_FINNHUB_KEY}`,
+        )
+          .then((res) => {
+            if (res.ok) return res.json();
+            else throw new Error("");
+          })
+          .then((data) => {
+            setStockPrices([
+              ...(stockPricesRef.current || []),
+              {
+                type: "trade",
+                data: [
+                  {
+                    t: Date.now(),
+                    p: data.c,
+                    s: selectedStockSymbol.displaySymbol,
+                    v: 0,
+                  },
+                ],
+              },
+            ]);
+          })
+          .catch((_) => {
+            console.log("API Error");
+          });
         socket.current?.send(
           JSON.stringify({
             type: "subscribe",
