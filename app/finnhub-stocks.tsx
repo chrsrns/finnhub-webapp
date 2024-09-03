@@ -50,9 +50,16 @@ export default function FinnhubStocks() {
     fetch(
       `https://finnhub.io/api/v1/search?q=${query}&exchange=US&token=${process.env.NEXT_PUBLIC_FINNHUB_KEY}`,
     )
-      .then((res) => res.json())
+      .then((res) => {
+        if (res.ok) return res.json();
+        else throw new Error("");
+      })
       .then((data) => {
         setSymbolLookupData(data);
+        console.log("Added data from query: ", query);
+      })
+      .catch((_) => {
+        console.log("API Error");
       });
     lastLookupCall.current = Date.now();
   }, []);
