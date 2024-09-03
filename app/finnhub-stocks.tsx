@@ -93,7 +93,8 @@ export default function FinnhubStocks() {
             if (
               query &&
               // NOTE: This is that 'another comparison' referred above
-              now - lastLookupCall.current >= API_CALL_WAIT_TIME
+              // The `-10` seems to fix an problem where the last query don't get fetched.
+              now - lastLookupCall.current >= API_CALL_WAIT_TIME - 10
             ) {
               lastLookupCall.current = now;
               symbolLookupFetch(lastLookupQuery.current);
