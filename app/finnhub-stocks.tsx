@@ -17,6 +17,9 @@ interface StockSymbolItem {
   symbol: string;
   type: string;
 }
+interface StockPrice extends StockSymbolItem {
+  price: number;
+}
 interface SymbolLookup {
   count: number;
   result: StockSymbolItem[];
