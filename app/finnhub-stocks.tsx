@@ -82,12 +82,13 @@ export default function FinnhubStocks() {
         lastLookupQuery.current = query;
         setTimeout(
           () => {
+            const now = Date.now();
             if (
               query &&
               // NOTE: This is that 'another comparison' referred above
-              Date.now() - lastLookupCall.current >= API_CALL_WAIT_TIME
+              now - lastLookupCall.current >= API_CALL_WAIT_TIME
             ) {
-              lastLookupCall.current = Date.now();
+              lastLookupCall.current = now;
               symbolLookupFetch(lastLookupQuery.current);
             }
           },
