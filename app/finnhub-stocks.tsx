@@ -215,13 +215,12 @@ export default function FinnhubStocks() {
     }
   }, []);
 
-  // #region NOTE: handlers for the search text input element
+  // NOTE: handlers for the search text input element
   function handleSearchTextChange(e: ChangeEvent<HTMLInputElement>) {
     setSearchText(e.target.value);
   }
-  // #//#endregion
 
-  //#region NOTE: handler for the auto update checkbox
+  // NOTE: handler for the auto update checkbox
   function handleCheckbox(e: ChangeEvent<HTMLInputElement>) {
     setIsAutoUpdate(e.target.checked);
   }
