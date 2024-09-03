@@ -50,6 +50,8 @@ export default function FinnhubStocks() {
     isAutoUpdateRef.current = isAutoUpdate;
   }, [isAutoUpdate]);
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const [searchErrorText, setSearchErrorText] = useState("");
 
   const [symbolLookupData, setSymbolLookupData] = useState<SymbolLookup>({
@@ -145,6 +147,8 @@ export default function FinnhubStocks() {
       );
     if (selectedStockSymbol) {
       if (selectedStockSymbol.displaySymbol) {
+        // NOTE: Set loading state to true here
+        setIsLoading(true);
         // NOTE: Fetches the latest stock price, since the websocket does not send the latest one on subscribe.
         fetch(
           `https://finnhub.io/api/v1/quote?symbol=${selectedStockSymbol.displaySymbol}&token=${process.env.NEXT_PUBLIC_FINNHUB_KEY}`,
@@ -174,7 +178,9 @@ export default function FinnhubStocks() {
           })
           .catch((_) => {
             console.log("API Error");
-          });
+          })
+          // NOTE: funally set loading state to false here
+          .finally(() => setIsLoading(false));
         socket.current?.send(
           JSON.stringify({
             type: "subscribe",
@@ -254,19 +260,23 @@ export default function FinnhubStocks() {
   }
 
   // NOTE: Extracted to be reusable
-  const queryFromSearchText = () =>
-    symbolLookupFetch(searchText).then((data) => {
-      if (data) {
-        const dataFiltered = data.result.filter(
-          (a) => a.displaySymbol == searchText.toUpperCase(),
-        );
-        if (dataFiltered.length === 1) {
-          setSelectedStockSymbol(dataFiltered[0]);
-        } else {
-          setSearchErrorText("Stock symbol not found in API");
+  const queryFromSearchText = () => {
+    setIsLoading(true);
+    symbolLookupFetch(searchText)
+      .then((data) => {
+        if (data) {
+          const dataFiltered = data.result.filter(
+            (a) => a.displaySymbol == searchText.toUpperCase(),
+          );
+          if (dataFiltered.length === 1) {
+            setSelectedStockSymbol(dataFiltered[0]);
+          } else {
+            setSearchErrorText("Stock symbol not found in API");
+          }
         }
-      }
-    });
+      })
+      .finally(() => setIsLoading(false));
+  };
   return (
     <>
       <div className={`${searchErrorText === "" ? "pb-10" : "pb-4"} pt-10`}>
@@ -355,6 +365,22 @@ export default function FinnhubStocks() {
         </div>
       </Show>
       <div className="flex w-full flex-grow flex-col place-content-start gap-2 px-4 before:fixed before:bottom-0 before:h-1/4 before:w-full before:bg-gradient-to-t before:from-white before:via-white before:dark:from-black before:dark:via-black">
+        <Show when={isLoading}>
+          <div className="flex animate-fadeIn justify-center">
+            <svg
+              className="animate-spin"
+              fill="currentColor"
+              strokeWidth="0"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 512 512"
+              style={{ overflow: "visible", color: "currentcolor" }}
+              height="1em"
+              width="1em"
+            >
+              <path d="M304 48a48 48 0 1 0-96 0 48 48 0 1 0 96 0zm0 416a48 48 0 1 0-96 0 48 48 0 1 0 96 0zM48 304a48 48 0 1 0 0-96 48 48 0 1 0 0 96zm464-48a48 48 0 1 0-96 0 48 48 0 1 0 96 0zM142.9 437A48 48 0 1 0 75 369.1a48 48 0 1 0 67.9 67.9zm0-294.2A48 48 0 1 0 75 75a48 48 0 1 0 67.9 67.9zM369.1 437a48 48 0 1 0 67.9-67.9 48 48 0 1 0-67.9 67.9z"></path>
+            </svg>
+          </div>
+        </Show>
         {(() => {
           return stockPrices.map((stockPrice, i) => {
             const stockPriceData = stockPrice.data[stockPrice.data.length - 1];
