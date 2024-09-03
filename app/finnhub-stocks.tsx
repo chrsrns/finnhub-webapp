@@ -35,6 +35,12 @@ export default function FinnhubStocks() {
     searchTextRef.current = searchText;
   }, [searchText]);
 
+  const [isAutoUpdate, setIsAutoUpdate] = useState(false);
+  const isAutoUpdateRef = useRef(false);
+  useEffect(() => {
+    isAutoUpdateRef.current = isAutoUpdate;
+  }, [isAutoUpdate]);
+
   const [symbolLookupData, setSymbolLookupData] = useState<SymbolLookup>({
     count: 0,
     result: [],
@@ -181,6 +187,7 @@ export default function FinnhubStocks() {
       );
       socket.current.addEventListener("message", (event) => {
         // TODO: Make type safe
+        if (!isAutoUpdateRef.current) return;
         const jsonRes: StockPriceResponse = JSON.parse(event.data);
         if (jsonRes.type === "trade") {
           const jsonResMapped: StockPriceResponse = {
@@ -202,6 +209,13 @@ export default function FinnhubStocks() {
     setSearchText(e.target.value);
   }
   // END
+
+  //#region handler for the auto update checkbox
+  function handleCheckbox(e: ChangeEvent<HTMLInputElement>) {
+    setIsAutoUpdate(e.target.checked);
+  }
+
+  //#endregion
 
   return (
     <>
@@ -266,13 +280,24 @@ export default function FinnhubStocks() {
       </div>
 
       <Show when={typeof selectedStockSymbol !== "undefined"}>
-        <div
-          className={`mb-5 flex w-fit animate-fadeIn gap-2 rounded bg-neutral-800 px-3 py-1.5`}
-        >
-          <span>Currently Selected:</span>
-          <span className="rounded bg-yellow-300 px-1.5 text-black">
-            {selectedStockSymbol?.displaySymbol}
-          </span>
+        <div className="mb-5 flex animate-fadeIn flex-wrap justify-center gap-4">
+          <label className="flex flex-col justify-center align-middle font-bold text-white">
+            <input
+              className="leading-tight"
+              type="checkbox"
+              checked={isAutoUpdate}
+              onChange={handleCheckbox}
+            ></input>
+            <span className="text-sm">Auto-Update</span>
+          </label>
+          <div
+            className={`flex w-fit animate-fadeIn gap-2 rounded bg-neutral-800 px-3 py-1.5`}
+          >
+            <span>Currently Selected:</span>
+            <span className="rounded bg-yellow-300 px-1.5 text-black">
+              {selectedStockSymbol?.displaySymbol}
+            </span>
+          </div>
         </div>
       </Show>
       <div className="flex w-full flex-grow flex-col place-content-start gap-2 px-4 before:fixed before:bottom-0 before:h-1/4 before:w-full before:bg-gradient-to-t before:from-white before:via-white before:dark:from-black before:dark:via-black">
