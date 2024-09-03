@@ -25,6 +25,7 @@ export default function FinnhubStocks() {
     count: 0,
     result: [],
   });
+  const [stockPrices, setStockPrices] = useState<StockPrice[]>([]);
   const [selectedStockSymbol, setSelectedStockSymbol] =
     useState<StockSymbolItem>();
 
@@ -88,12 +89,50 @@ export default function FinnhubStocks() {
   }, [searchText, symbolLookupThrottled]);
 
   useEffect(() => {
+    if (selectedStockSymbol) {
+      if (selectedStockSymbol.displaySymbol) {
+        socket.current?.send(
+          JSON.stringify({
+            type: "subscribe",
+            symbol: selectedStockSymbol.displaySymbol,
+          }),
+        );
+      }
+    }
+  }, [selectedStockSymbol]);
+
+  //#region NOTE: For unreactive reference to that state
+  const stockPricesRef = useRef<StockPrice[]>();
+  useEffect(() => {
+    stockPricesRef.current = stockPrices;
+  }, [stockPrices]);
+  //#endregion
+  useEffect(() => {
     if (!socket.current) {
       socket.current = new WebSocket(
         `wss://ws.finnhub.io?token=${process.env.NEXT_PUBLIC_FINNHUB_KEY}`,
       );
       socket.current.addEventListener("message", (event) => {
-        console.log("Websocket Data:", event.data);
+        const jsonRes = JSON.parse(event.data);
+
+        // NOTE: Undefined checks
+        if (!jsonRes.data) return;
+        const jsonResData = jsonRes.data;
+        // NOTE: The data sent by the API comes as an array.
+        // The last one seems to have the latest data. This parses that.
+        const price = jsonResData[jsonResData.length - 1].p || undefined;
+
+        if (price)
+          setStockPrices([
+            ...(stockPricesRef.current || []),
+            {
+              description: "",
+              displaySymbol: "",
+              symbol: "",
+              type: "",
+              price: price,
+            },
+          ]);
       });
     }
   }, []);
@@ -154,15 +193,18 @@ export default function FinnhubStocks() {
 
       <div className="relative flex w-full flex-grow flex-col gap-2 overflow-scroll px-4 before:fixed before:bottom-0 before:h-1/4 before:w-full before:bg-gradient-to-t before:from-white before:via-white before:dark:from-black before:dark:via-black">
         {(() => {
-          let objects = Array.from({ length: 14 });
-          return objects.map((object, i) => (
+          return stockPrices.map((stockPrice, i) => (
             <div
               key={i}
               className="flex w-full items-center justify-center rounded border border-neutral-400 bg-neutral-800/40 p-2"
             >
               <span>Time</span>
               <span className="mx-2">|</span>
-              <span>Price</span>
+              <span></span>
+              {Number(stockPrice.price).toLocaleString("en", {
+                style: "currency",
+                currency: "USD",
+              })}
             </div>
           ));
         })()}
