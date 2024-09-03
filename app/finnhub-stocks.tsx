@@ -184,7 +184,7 @@ export default function FinnhubStocks() {
         </button>
       </div>
 
-      <div className="relative flex w-full flex-grow flex-col gap-2 overflow-scroll px-4 before:fixed before:bottom-0 before:h-1/4 before:w-full before:bg-gradient-to-t before:from-white before:via-white before:dark:from-black before:dark:via-black">
+      <div className="relative flex w-full flex-grow flex-col-reverse place-content-start gap-2 overflow-scroll px-4 before:fixed before:bottom-0 before:h-1/4 before:w-full before:bg-gradient-to-t before:from-white before:via-white before:dark:from-black before:dark:via-black">
         {(() => {
           return stockPrices.map((stockPrice, i) => (
             <div
