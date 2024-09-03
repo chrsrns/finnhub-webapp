@@ -275,6 +275,7 @@ export default function FinnhubStocks() {
                     <button
                       onClick={() => {
                         setSelectedStockSymbol(symbol);
+                        setSearchErrorText("");
                       }}
                       className=""
                     >
