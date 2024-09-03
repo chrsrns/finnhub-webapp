@@ -11,7 +11,7 @@ import {
 import { Show } from "./utils";
 
 //#region These are the data struct returned by Finnhub API at their search endpoint
-interface SymbolLookupItem {
+interface StockSymbolItem {
   description: string;
   displaySymbol: string;
   symbol: string;
@@ -19,7 +19,7 @@ interface SymbolLookupItem {
 }
 interface SymbolLookup {
   count: number;
-  result: SymbolLookupItem[];
+  result: StockSymbolItem[];
 }
 //#endregion
 
