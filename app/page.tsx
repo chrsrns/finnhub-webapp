@@ -11,7 +11,7 @@ export default function Home() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            Finnhub Web App
+            Finnhub Stocks API Web App
           </a>
         </div>
       </div>
