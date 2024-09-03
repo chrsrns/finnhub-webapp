@@ -273,36 +273,36 @@ export default function FinnhubStocks() {
           </span>
         </div>
       </Show>
-      <div className="relative flex w-full flex-grow flex-col-reverse place-content-start gap-2 overflow-scroll px-4 before:fixed before:bottom-0 before:h-1/4 before:w-full before:bg-gradient-to-t before:from-white before:via-white before:dark:from-black before:dark:via-black">
+      <div className="flex w-full flex-grow flex-col place-content-start gap-2 px-4 before:fixed before:bottom-0 before:h-1/4 before:w-full before:bg-gradient-to-t before:from-white before:via-white before:dark:from-black before:dark:via-black">
         {(() => {
-          return stockPrices.map((stockPrice, i) => (
-            <div
-              key={i}
-              className="flex w-full flex-wrap items-center justify-center gap-2 rounded border border-neutral-400 bg-neutral-800/40 p-2"
-            >
-              <span className="rounded bg-yellow-300 px-1.5 text-black">
-                {stockPrice.data[stockPrice.data.length - 1].s}
-              </span>
-              <span>
-                {Number(
-                  stockPrice.data[stockPrice.data.length - 1].p,
-                ).toLocaleString("en", {
-                  style: "currency",
-                  currency: "USD",
-                })}
-              </span>
-              <span className="">@</span>
-              <span className="text-center">
-                {(() => {
-                  const dateTime = DateTime.fromMillis(
-                    stockPrice.data[stockPrice.data.length - 1].t,
-                  );
+          return stockPrices.map((stockPrice, i) => {
+            const stockPriceData = stockPrice.data[stockPrice.data.length - 1];
+            console.log("Length: ", stockPrices.length);
+            return (
+              <div
+                key={`${stockPriceData.s}-${stockPriceData.p}-${stockPriceData.t}-${stockPriceData.v}-${stockPriceData.distinctor}`}
+                className="flex w-full animate-fadeIn flex-wrap items-center justify-center gap-2 rounded border border-neutral-400 bg-neutral-800/40 p-2"
+              >
+                <span className="rounded bg-yellow-300 px-1.5 text-black">
+                  {stockPriceData.s}
+                </span>
+                <span>
+                  {Number(stockPriceData.p).toLocaleString("en", {
+                    style: "currency",
+                    currency: "USD",
+                  })}
+                </span>
+                <span className="">@</span>
+                <span className="text-center">
+                  {(() => {
+                    const dateTime = DateTime.fromMillis(stockPriceData.t);
 
-                  return dateTime.toFormat("MM/dd/yyyy hh:mm a");
-                })()}
-              </span>
-            </div>
-          ));
+                    return dateTime.toFormat("MM/dd/yyyy hh:mm:ss a");
+                  })()}
+                </span>
+              </div>
+            );
+          });
         })()}
       </div>
     </>
