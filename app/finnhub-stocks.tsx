@@ -2,7 +2,7 @@
 
 import { DateTime } from "luxon";
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
-import { Show } from "./utils";
+import { Show, uuidv4 } from "./utils";
 
 //#region These are the data struct returned by Finnhub API at their search endpoint
 interface StockSymbolItem {
@@ -20,6 +20,7 @@ interface StockPriceResponseData {
   s: string;
   p: number;
   v: number;
+  distinctor: string;
 }
 interface SymbolLookup {
   count: number;
@@ -132,20 +133,23 @@ export default function FinnhubStocks() {
             else throw new Error("");
           })
           .then((data) => {
-            setStockPrices([
+            const stockPriceRes: StockPriceResponse = {
+              type: "trade",
+              data: [
+                {
+                  t: Date.now(),
+                  p: data.c,
+                  s: selectedStockSymbol.displaySymbol,
+                  v: 0,
+                  distinctor: uuidv4(),
+                },
+              ],
+            };
+            const resultArr = [
+              stockPriceRes,
               ...(stockPricesRef.current || []),
-              {
-                type: "trade",
-                data: [
-                  {
-                    t: Date.now(),
-                    p: data.c,
-                    s: selectedStockSymbol.displaySymbol,
-                    v: 0,
-                  },
-                ],
-              },
-            ]);
+            ];
+            setStockPrices(resultArr.slice(0, 8));
           })
           .catch((_) => {
             console.log("API Error");
@@ -176,9 +180,16 @@ export default function FinnhubStocks() {
       socket.current.addEventListener("message", (event) => {
         // TODO: Make type safe
         const jsonRes: StockPriceResponse = JSON.parse(event.data);
-
         if (jsonRes.type === "trade") {
-          setStockPrices([...(stockPricesRef.current || []), jsonRes]);
+          const jsonResMapped: StockPriceResponse = {
+            type: jsonRes.type,
+            data: jsonRes.data.map((a) => {
+              a.distinctor = uuidv4();
+              return a;
+            }),
+          };
+          const resultArr = [jsonResMapped, ...(stockPricesRef.current || [])];
+          setStockPrices(resultArr.slice(0, 8));
         }
       });
     }
