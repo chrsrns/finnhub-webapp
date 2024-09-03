@@ -20,6 +20,11 @@ export default function FinnhubStocks() {
   const [searchText, setSearchText] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
 
+  const [symbolLookupData, setSymbolLookupData] = useState<SymbolLookup>({
+    count: 0,
+    result: [],
+  });
+
   // START handlers for the search text input element
   function handleSearchTextChange(e: ChangeEvent<HTMLInputElement>) {
     setSearchText(e.target.value);
