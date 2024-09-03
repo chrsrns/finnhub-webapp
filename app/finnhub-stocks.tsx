@@ -1,7 +1,14 @@
 "use client";
 
 import { DateTime } from "luxon";
-import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
+import {
+  ChangeEvent,
+  KeyboardEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { Show, uuidv4 } from "./utils";
 
 //#region These are the data struct returned by Finnhub API at their search endpoint
@@ -217,6 +224,27 @@ export default function FinnhubStocks() {
   }
   //#endregion
 
+  // NOTE: handler for search text box enter key
+  function handleSearchTextBoxKeyUp(e: KeyboardEvent<HTMLInputElement>) {
+    if (e.key == "Enter") {
+      queryFromSearchText();
+      if (document.activeElement instanceof HTMLElement)
+        document.activeElement.blur();
+    }
+  }
+
+  // NOTE: Extracted to be reusable
+  const queryFromSearchText = () =>
+    symbolLookupFetch(searchText).then((data) => {
+      if (data) {
+        const dataFiltered = data.result.filter(
+          (a) => a.displaySymbol == searchText.toUpperCase(),
+        );
+        if (dataFiltered.length === 1) {
+          setSelectedStockSymbol(dataFiltered[0]);
+        }
+      }
+    });
   return (
     <>
       <div className="flex w-full flex-wrap place-items-center justify-center gap-4 py-10">
@@ -224,6 +252,7 @@ export default function FinnhubStocks() {
           <input
             value={searchText}
             onChange={handleSearchTextChange}
+            onKeyUp={handleSearchTextBoxKeyUp}
             placeholder="Enter stock symbol or name"
             className="peer/input justify-center rounded-xl border border-b border-gray-300 bg-gray-200 bg-gradient-to-b from-zinc-200 p-4 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-900 dark:from-inherit"
           ></input>
@@ -260,16 +289,7 @@ export default function FinnhubStocks() {
           className="focus:shadow-outline min-w-fit rounded bg-white px-4 py-2 font-bold text-black hover:bg-neutral-300 focus:outline-none"
           type="button"
           onClick={() => {
-            symbolLookupFetch(searchText).then((data) => {
-              if (data) {
-                const dataFiltered = data.result.filter(
-                  (a) => a.displaySymbol == searchText.toUpperCase(),
-                );
-                if (dataFiltered.length === 1) {
-                  setSelectedStockSymbol(dataFiltered[0]);
-                }
-              }
-            });
+            queryFromSearchText();
           }}
         >
           Search
