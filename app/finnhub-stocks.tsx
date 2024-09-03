@@ -265,9 +265,9 @@ export default function FinnhubStocks() {
           return stockPrices.map((stockPrice, i) => (
             <div
               key={i}
-              className="flex w-full items-center justify-center rounded border border-neutral-400 bg-neutral-800/40 p-2"
+              className="flex w-full flex-wrap items-center justify-center gap-2 rounded border border-neutral-400 bg-neutral-800/40 p-2"
             >
-              <span className="me-3 rounded bg-yellow-300 px-1.5 text-black">
+              <span className="rounded bg-yellow-300 px-1.5 text-black">
                 {stockPrice.data[stockPrice.data.length - 1].s}
               </span>
               <span>
@@ -278,8 +278,8 @@ export default function FinnhubStocks() {
                   currency: "USD",
                 })}
               </span>
-              <span className="mx-1.5">@</span>
-              <span>
+              <span className="">@</span>
+              <span className="text-center">
                 {(() => {
                   const dateTime = DateTime.fromMillis(
                     stockPrice.data[stockPrice.data.length - 1].t,
