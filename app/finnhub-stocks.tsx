@@ -1,5 +1,6 @@
 "use client";
 
+import { DateTime } from "luxon";
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
 
 //#region These are the data struct returned by Finnhub API at their search endpoint
@@ -201,6 +202,16 @@ export default function FinnhubStocks() {
                   style: "currency",
                   currency: "USD",
                 })}
+              </span>
+              <span className="mx-1.5">@</span>
+              <span>
+                {(() => {
+                  const dateTime = DateTime.fromMillis(
+                    stockPrice.data[stockPrice.data.length - 1].t,
+                  );
+
+                  return dateTime.toFormat("MM/dd/yyyy hh:mm a");
+                })()}
               </span>
             </div>
           ));
