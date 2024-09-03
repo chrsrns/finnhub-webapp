@@ -48,6 +48,8 @@ export default function FinnhubStocks() {
     isAutoUpdateRef.current = isAutoUpdate;
   }, [isAutoUpdate]);
 
+  const [searchErrorText, setSearchErrorText] = useState("");
+
   const [symbolLookupData, setSymbolLookupData] = useState<SymbolLookup>({
     count: 0,
     result: [],
@@ -127,6 +129,7 @@ export default function FinnhubStocks() {
 
   useEffect(() => {
     symbolLookupThrottled(searchText);
+    setSearchErrorText("");
   }, [searchText, symbolLookupThrottled]);
 
   useEffect(() => {
@@ -222,7 +225,6 @@ export default function FinnhubStocks() {
   function handleCheckbox(e: ChangeEvent<HTMLInputElement>) {
     setIsAutoUpdate(e.target.checked);
   }
-  //#endregion
 
   // NOTE: handler for search text box enter key
   function handleSearchTextBoxKeyUp(e: KeyboardEvent<HTMLInputElement>) {
@@ -242,58 +244,65 @@ export default function FinnhubStocks() {
         );
         if (dataFiltered.length === 1) {
           setSelectedStockSymbol(dataFiltered[0]);
+        } else {
+          setSearchErrorText("Stock symbol not found in API");
         }
       }
     });
   return (
     <>
-      <div className="flex w-full flex-wrap place-items-center justify-center gap-4 py-10">
-        <div className="relative">
-          <input
-            value={searchText}
-            onChange={handleSearchTextChange}
-            onKeyUp={handleSearchTextBoxKeyUp}
-            placeholder="Enter stock symbol or name"
-            className="peer/input justify-center rounded-xl border border-b border-gray-300 bg-gray-200 bg-gradient-to-b from-zinc-200 p-4 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-900 dark:from-inherit"
-          ></input>
-          <div className="top-100 absolute z-10 mt-2 hidden w-full flex-col rounded border border-neutral-400 bg-zinc-900 p-2.5 hover:flex peer-focus/input:flex">
-            {(() => {
-              if (symbolLookupData.count < 1 || !searchText)
-                return (
-                  <div className="text-center text-neutral-400">
-                    Possible matches will show here
-                  </div>
-                );
+      <div className={`${searchErrorText === "" ? "pb-10" : "pb-4"} pt-10`}>
+        <div className="flex w-full flex-wrap place-items-center justify-center gap-4">
+          <div className="relative">
+            <input
+              value={searchText}
+              onChange={handleSearchTextChange}
+              onKeyUp={handleSearchTextBoxKeyUp}
+              placeholder="Enter stock symbol or name"
+              className="peer/input justify-center rounded-xl border border-b border-gray-300 bg-gray-200 bg-gradient-to-b from-zinc-200 p-4 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-900 dark:from-inherit"
+            ></input>
+            <div className="top-100 absolute z-10 mt-2 hidden w-full flex-col rounded border border-neutral-400 bg-zinc-900 p-2.5 hover:flex peer-focus/input:flex">
+              {(() => {
+                if (symbolLookupData.count < 1 || !searchText)
+                  return (
+                    <div className="text-center text-neutral-400">
+                      Possible matches will show here
+                    </div>
+                  );
 
-              let results = symbolLookupData.result.slice(0, 4);
-              return results.map((symbol) => (
-                <div key={symbol.description}>
-                  <button
-                    onClick={() => {
-                      setSelectedStockSymbol(symbol);
-                    }}
-                    className=""
-                  >
-                    <span className="me-3 font-bold">
-                      {symbol.displaySymbol}
-                    </span>
-                    {symbol.description}
-                  </button>
-                  <hr className="py-1" />
-                </div>
-              ));
-            })()}
+                let results = symbolLookupData.result.slice(0, 4);
+                return results.map((symbol) => (
+                  <div key={symbol.description}>
+                    <button
+                      onClick={() => {
+                        setSelectedStockSymbol(symbol);
+                      }}
+                      className=""
+                    >
+                      <span className="me-3 font-bold">
+                        {symbol.displaySymbol}
+                      </span>
+                      {symbol.description}
+                    </button>
+                    <hr className="py-1" />
+                  </div>
+                ));
+              })()}
+            </div>
           </div>
+          <button
+            className="focus:shadow-outline min-w-fit rounded bg-white px-4 py-2 font-bold text-black hover:bg-neutral-300 focus:outline-none"
+            type="button"
+            onClick={() => {
+              queryFromSearchText();
+            }}
+          >
+            Search
+          </button>
         </div>
-        <button
-          className="focus:shadow-outline min-w-fit rounded bg-white px-4 py-2 font-bold text-black hover:bg-neutral-300 focus:outline-none"
-          type="button"
-          onClick={() => {
-            queryFromSearchText();
-          }}
-        >
-          Search
-        </button>
+        <div className="mt-4 text-center text-base text-red-400">
+          {searchErrorText}
+        </div>
       </div>
 
       <Show when={typeof selectedStockSymbol !== "undefined"}>
