@@ -34,6 +34,8 @@ export default function FinnhubStocks() {
     count: 0,
     result: [],
   });
+  const [selectedStockSymbol, setSelectedStockSymbol] =
+    useState<StockSymbolItem>();
 
   // #region  Finnhub - related functions
 
@@ -142,7 +144,12 @@ export default function FinnhubStocks() {
                 let results = symbolLookupData.result.slice(0, 4);
                 return results.map((symbol) => (
                   <div key={symbol.description}>
-                    <button className="">
+                    <button
+                      onClick={() => {
+                        setSelectedStockSymbol(symbol);
+                      }}
+                      className=""
+                    >
                       <span className="me-3 font-bold">
                         {symbol.displaySymbol}
                       </span>
