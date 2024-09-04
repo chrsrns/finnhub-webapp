@@ -238,10 +238,10 @@ export default function FinnhubStocks() {
   }
 
   // NOTE: handlers for the search results events
-  function handleSearchResultsMouseOver(e: MouseEvent<HTMLDivElement>) {
+  function handleSearchResultsMouseOver(_: MouseEvent<HTMLDivElement>) {
     setIsSearchResultsHovered(true);
   }
-  function handleSearchResultsMouseLeave(e: MouseEvent<HTMLDivElement>) {
+  function handleSearchResultsMouseLeave(_: MouseEvent<HTMLDivElement>) {
     setIsSearchResultsHovered(false);
   }
 
@@ -382,7 +382,7 @@ export default function FinnhubStocks() {
           </div>
         </Show>
         {(() => {
-          return stockPrices.map((stockPrice, i) => {
+          return stockPrices.map((stockPrice, _) => {
             const stockPriceData = stockPrice.data[stockPrice.data.length - 1];
             return (
               <div
