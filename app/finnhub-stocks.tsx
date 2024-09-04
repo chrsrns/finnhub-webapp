@@ -13,7 +13,8 @@ import {
 } from "react";
 import { Show, uuidv4 } from "./utils";
 
-//#region These are the data struct returned by Finnhub API at their search endpoint
+//#region
+// NOTE: These are the data struct representint the data returned by Finnhub API
 interface StockSymbolItem {
   description: string;
   displaySymbol: string;
@@ -138,6 +139,7 @@ export default function FinnhubStocks() {
 
   useEffect(() => {
     // NOTE: For unsubscribing the old stock symbol
+    // We want this because we don't want the old selection to still send updates to the client.
     if (selectedStockSymbolRef.current)
       socket.current?.send(
         JSON.stringify({
@@ -145,6 +147,7 @@ export default function FinnhubStocks() {
           symbol: selectedStockSymbolRef.current.displaySymbol,
         }),
       );
+    // NOTE: On change of selected stock symbol, this queries the API for the latest price.
     if (selectedStockSymbol) {
       if (selectedStockSymbol.displaySymbol) {
         // NOTE: Set loading state to true here
@@ -199,14 +202,17 @@ export default function FinnhubStocks() {
     stockPricesRef.current = stockPrices;
   }, [stockPrices]);
   //#endregion
+
+  // NOTE: This initializes the websocket and configures it to listen to incoming messages.
   useEffect(() => {
     if (!socket.current) {
       socket.current = new WebSocket(
         `wss://ws.finnhub.io?token=${process.env.NEXT_PUBLIC_FINNHUB_KEY}`,
       );
       socket.current.addEventListener("message", (event) => {
-        // TODO: Make type safe
         if (!isAutoUpdateRef.current) return;
+
+        // NOTE: parse the message, and if valid, add to the list of prices.
         const jsonRes: StockPriceResponse = JSON.parse(event.data);
         if (jsonRes.type === "trade") {
           const jsonResMapped: StockPriceResponse = {
@@ -222,6 +228,11 @@ export default function FinnhubStocks() {
       });
     }
   }, []);
+
+  //#region
+  // NOTE: This region handles hover and focus events for the options and input interfaces, respectively.
+  // This is so that focusing the input text shows the options, leaving the focus but hovering on the options
+  // make the options stay visible, and clicking on the options makes it go away, which seems to be not possible on CSS AFAIK.
 
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isSearchResultsHovered, setIsSearchResultsHovered] = useState(false);
@@ -258,6 +269,8 @@ export default function FinnhubStocks() {
         document.activeElement.blur();
     }
   }
+
+  //#endregion
 
   // NOTE: Extracted to be reusable
   const queryFromSearchText = () => {
