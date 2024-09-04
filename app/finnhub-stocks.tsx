@@ -52,6 +52,7 @@ export default function FinnhubStocks() {
   }, [isAutoUpdate]);
 
   const [isLoading, setIsLoading] = useState(false);
+  const [isSymbolLookupLoading, setIsSymbolLookupLoading] = useState(false);
 
   const [searchErrorText, setSearchErrorText] = useState("");
 
@@ -74,6 +75,7 @@ export default function FinnhubStocks() {
 
   const socket = useRef<WebSocket>();
   const symbolLookupFetch = useCallback((query: string) => {
+    setIsSymbolLookupLoading(true);
     lastLookupCall.current = Date.now();
     let fetchResult = fetch(
       `https://finnhub.io/api/v1/search?q=${query}&exchange=US&token=${process.env.NEXT_PUBLIC_FINNHUB_KEY}`,
@@ -91,6 +93,9 @@ export default function FinnhubStocks() {
       })
       .catch((_) => {
         console.log("API Error");
+      })
+      .finally(() => {
+        setIsSymbolLookupLoading(false);
       });
     return fetchResult;
   }, []);
@@ -311,10 +316,27 @@ export default function FinnhubStocks() {
                 className="top-100 absolute z-10 mt-2 w-full flex-col rounded border border-neutral-400 bg-zinc-900 p-2.5"
               >
                 {(() => {
-                  if (symbolLookupData.count < 1 || !searchText)
+                  if (!searchText)
                     return (
                       <div className="text-center text-neutral-400">
                         Possible matches will show here
+                      </div>
+                    );
+                  else if (symbolLookupData.count < 1 || isSymbolLookupLoading)
+                    return (
+                      <div className="flex animate-fadeIn justify-center">
+                        <svg
+                          className="animate-spin"
+                          fill="currentColor"
+                          strokeWidth="0"
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 512 512"
+                          style={{ overflow: "visible", color: "currentcolor" }}
+                          height="1em"
+                          width="1em"
+                        >
+                          <path d="M304 48a48 48 0 1 0-96 0 48 48 0 1 0 96 0zm0 416a48 48 0 1 0-96 0 48 48 0 1 0 96 0zM48 304a48 48 0 1 0 0-96 48 48 0 1 0 0 96zm464-48a48 48 0 1 0-96 0 48 48 0 1 0 96 0zM142.9 437A48 48 0 1 0 75 369.1a48 48 0 1 0 67.9 67.9zm0-294.2A48 48 0 1 0 75 75a48 48 0 1 0 67.9 67.9zM369.1 437a48 48 0 1 0 67.9-67.9 48 48 0 1 0-67.9 67.9z"></path>
+                        </svg>
                       </div>
                     );
 
